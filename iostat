@@ -64,17 +64,6 @@ await=$(iostat -x $disk | grep $disk | awk '{print $10}')
 r_await=$(iostat -x $disk | grep $disk | awk '{print $11}')
 w_await=$(iostat -x $disk | grep $disk | awk '{print $12}')
 
-###for debugging
-#echo $await
-#echo $r_await
-#echo $w_await
-
-#echo $crit_await
-#echo $crit_r_await
-#echo $crit_w_await
-###
-
-
 
 # Comparing the result and setting the correct level:
 if ( [ "`echo "$tps       >= $crit_tps"     | bc`" == "1" ] ||
