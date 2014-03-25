@@ -31,10 +31,16 @@ done
 crit_tps=`echo $critical | cut -d, -f1`
 crit_read=`echo $critical | cut -d, -f2`
 crit_written=`echo $critical | cut -d, -f3`
+crit_await=$(echo $critical | cut -d, -f4)
+crit_r_await=$(echo $critical | cut -d, -f5)
+crit_w_await=$(echo $critical | cut -d, -f6)
 
 warn_tps=`echo $warning | cut -d, -f1`
 warn_read=`echo $warning | cut -d, -f2`
 warn_written=`echo $warning | cut -d, -f3`
+warn_await=$(echo $warning | cut -d, -f4)
+warn_r_await=$(echo $warning | cut -d, -f5)
+warn_w_await=$(echo $warning | cut -d, -f6)
 
 
 # Checking parameters:
@@ -54,15 +60,30 @@ warn_written=`echo $warning | cut -d, -f3`
 tps=`$iostat $disk | grep $disk | awk '{print $2}'`
 kbread=`$iostat $disk | grep $disk | awk '{print $3}'`
 kbwritten=`$iostat $disk | grep $disk | awk '{print $4}'`
+await=$(iostat -x $disk | grep $disk | awk '{print $10}')
+r_await=$(iostat -x $disk | grep $disk | awk '{print $11}')
+w_await=$(iostat -x $disk | grep $disk | awk '{print $12}')
 
 
 # Comparing the result and setting the correct level:
-if ( [ "`echo "$tps >= $crit_tps" | bc`" == "1" ] || [ "`echo "$kbread >= $crit_read" | bc`" == "1" ] || \
-     [ "`echo "$kbwritten >= $crit_written" | bc`" == "1" ] ); then
+if ( [ "`echo "$tps       >= $crit_tps"     | bc`" == "1" ] ||
+     [ "`echo "$kbread    >= $crit_read"    | bc`" == "1" ] ||
+     [ "`echo "$kbwritten >= $crit_written" | bc`" == "1" ] ||
+     [ "`echo "$await     >= $crit_await"   | bc`" == "1" ] ||
+     [ "`echo "$r_await   >= $crit_r_await" | bc`" == "1" ] ||
+     [ "`echo "$w_await   >= $crit_w_await" | bc`" == "1" ]
+   );
+ then
         msg="CRITICAL"
         status=2
-else if ( [ "`echo "$tps >= $warn_tps" | bc`" == "1" ] || [ "`echo "$kbread >= $warn_read" | bc`" == "1" ] || \
-          [ "`echo "$kbwritten >= $warn_written" | bc`" == "1" ] ); then
+else if ( [ "`echo "$tps       >= $warn_tps"     | bc`" == "1" ] ||
+          [ "`echo "$kbread    >= $warn_read"    | bc`" == "1" ] ||
+          [ "`echo "$kbwritten >= $warn_written" | bc`" == "1" ] ||
+          [ "`echo "$await     >= $warn_await"   | bc`" == "1" ] ||
+          [ "`echo "$r_await   >= $warn_r_await" | bc`" == "1" ] ||
+          [ "`echo "$w_await   >= $warn_w_await" | bc`" == "1" ]
+
+        ); then
         	msg="WARNING"
         	status=1
      else
@@ -72,7 +93,8 @@ else if ( [ "`echo "$tps >= $warn_tps" | bc`" == "1" ] || [ "`echo "$kbread >= $
 fi
 
 # Printing the results:
-echo "$msg - I/O stats tps=$tps KB_read/s=$kbread KB_written/s=$kbwritten | 'tps'=$tps; 'KB_read/s'=$kbread; 'KB_written/s'=$kbwritten;"
+#echo "$msg - I/O stats tps=$tps KB_read/s=$kbread KB_written/s=$kbwritten | 'tps'=$tps; 'KB_read/s'=$kbread; 'KB_written/s'=$kbwritten;"
+echo "$msg - I/O stats tps=$tps KB_read/s=$kbread KB_written/s=$kbwritten await=$await r_await=$r_await w_await=$w_await | 'tps'=$tps; 'KB_read/s'=$kbread; 'KB_written/s'=$kbwritten; 'await'=$await; 'r_await'=$r_await; 'w_await'=$w_await;"
 
 # Bye!
 exit $status
