@@ -1,4 +1,0 @@
-An example of calling this script from the command line and its output:
-
-$ ./iostat -d sda -c 2,10,10,10,20,20 -w 1,9,9,9,10,10
-OK - I/O stats tps=0.15 KB_read/s=2.63 KB_written/s=1.77 await=1.60 r_await=2.33 w_await=0.60 | 'tps'=0.15; 'KB_read/s'=2.63; 'KB_written/s'=1.77; 'await'=1.60; 'r_await'=2.33; 'w_await'=0.60;
